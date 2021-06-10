@@ -14,3 +14,8 @@
 
 
 /report/final_exam_solutions.synctex.gz
+/env/
+/report/data/.~lock.conv_predictions.csv#
+/report/data/.~lock.dickey-fuller.csv#
+/report/data/.~lock.dickey-fuller_ts_log.csv#
+/report/data/.~lock.dickey-fuller_ts_log_moving_avg_diff.csv#
