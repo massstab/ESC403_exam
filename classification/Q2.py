@@ -1,26 +1,23 @@
 import logging
 import os
+import pickle
 import numpy as np
 import sys
+import sklearn.metrics
+
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Silence tensorflow a bit
 np.set_printoptions(threshold=sys.maxsize)
 
 from contextlib import redirect_stdout
-import seaborn as sns
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tensorflow.keras as keras
-from tensorflow.keras.utils import to_categorical
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
 from preparation import X, y, X_pred, img_name
-import scipy.io
-from helpers2 import create_model
-
+from helpers2 import create_model, save_history
 
 # TODO: ChestCT and AbdomentCT maybe are not normalized correctly?
 
@@ -41,9 +38,9 @@ class_names = list(classes.keys())
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=True)
 X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42, shuffle=False)
 
-print(X_test.shape, y_test.shape)
-print(X_train.shape, y_train.shape)
-print(X_val.shape, y_val.shape)
+# print(X_test.shape, y_test.shape)
+# print(X_train.shape, y_train.shape)
+# print(X_val.shape, y_val.shape)
 
 
 # Take a look at some images
@@ -62,36 +59,58 @@ if run_rf:
     X_test_rf = X_test.reshape((X_test.shape[0], X_test.shape[1] * X.shape[2] * X.shape[3]))
     X_pred_rf = X_pred.reshape((X_pred.shape[0], X_pred.shape[1] * X.shape[2] * X.shape[3]))
 
-    model_rf = RandomForestClassifier(bootstrap=True)
+    model_rf = RandomForestClassifier(bootstrap=False, n_estimators=100, max_depth=8)
     model_rf.fit(X_train_rf, y_train)
 
-    pred_test = model_rf.predict(X_test_rf)
-    print("Accuracy random forest:", accuracy_score(y_test, pred_test))
+    # evaluate RF
+    y_test_pred = model_rf.predict(X_test_rf)
+    prec, recall, f_score, _ = sklearn.metrics.precision_recall_fscore_support(y_test, y_test_pred)
+    print(type(prec))
+    print('-----------------------------')
+    print('Evaluation of random Forest:')
+    print("accuracy:", accuracy_score(y_test, y_test_pred))
+    print(f"precision per class: {prec.round(3)}")
+    print(f"recall per class: {recall.round(3)}")
+    print(f"f-score per class: {f_score.round(3)}")
 
     predictions = model_rf.predict(X_pred_rf)
 
-    df = pd.DataFrame(list(zip(img_name, [class_names[pred] for pred in predictions], predictions)), columns=['img', 'class name', 'category'])
+    df = pd.DataFrame(list(zip(img_name, [class_names[pred] for pred in predictions], predictions)),
+                      columns=['img', 'class name', 'category'])
     if save_to_file:
         df.to_csv('../report/data/predictions_rf.csv')
 
 if run_cnn:
-    # model_conv = create_model()
-    # model_conv.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_val, y_val))
+    train = False
 
-    # model_conv.save(f'saved_model/conv_ep{EPOCHS}_batch{BATCH_SIZE}')
-    model_conv = keras.models.load_model('saved_model/conv')
+    if train:
+        model_conv = create_model()
+        history = model_conv.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_val, y_val))
+        with open('saved_model/trainHistoryDict_CNN', 'wb') as file_pi:
+            pickle.dump(history.history, file_pi)
+        model_conv.save(f'saved_model/conv_ep{EPOCHS}_batch{BATCH_SIZE}')
+    else:
+        model_conv = keras.models.load_model('saved_model/conv')
+        history = pickle.load(open('saved_model/trainHistoryDict_CNN', 'rb'))
+
     loss_conv, accuracy_conv = model_conv.evaluate(X_test, y_test)
-    with open('saved_model/conv_summary.txt', 'w') as f:
+    print("Test Accuracy CNN; ", accuracy_conv)
+    with open('../report/data/conv_summary.txt', 'w') as f:
         with redirect_stdout(f):
             model_conv.summary()
 
     # Saves a cool looking plot of the model
-    # keras.utils.plot_model(model_conv, "model_mnist_conv.png", show_shapes=True)
+    if save_to_file:
+        keras.utils.plot_model(model_conv, "../report/images/model_cnn.png", show_shapes=True, dpi=150)
 
-    print("Test Accuracy CNN; ", accuracy_conv)
+    # Saves the train/val acccuracy/loss for question 2.4
+    save_history(history)
+
+    # Predict the unlabled data
     predictions = model_conv.predict(X_pred)
     predictions = np.argmax(predictions, axis=1)
-    df = pd.DataFrame(list(zip(img_name, [class_names[pred] for pred in predictions], predictions)), columns=['img', 'class name', 'category'])
+    df = pd.DataFrame(list(zip(img_name, [class_names[pred] for pred in predictions], predictions)),
+                      columns=['img', 'class name', 'category'])
     if save_to_file:
         df.to_csv('../report/data/predictions_cnn.csv')
 

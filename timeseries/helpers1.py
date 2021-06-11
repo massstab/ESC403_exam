@@ -3,7 +3,11 @@ import numpy as np
 import pandas as pd
 from matplotlib.pyplot import figure
 from statsmodels.tsa.stattools import adfuller
+import seaborn as sns
 
+sns.set_style("whitegrid")
+plt.rc('xtick', labelsize=15)
+plt.rc('ytick', labelsize=15)
 
 
 def plot_AFC_PAFC(ts, lag_acf, lag_pacf):
@@ -11,24 +15,26 @@ def plot_AFC_PAFC(ts, lag_acf, lag_pacf):
     figure(figsize=(12, 4))
 
     # Plot ACF:
-    plt.subplot(121)
-    plt.plot(lag_acf)
-    plt.xticks(range(0, 20, 1))
+    plt.subplot(111)
+    plt.plot(lag_acf[1:])
+    plt.xticks(range(1, 200, 10))
     plt.axhline(y=0, linestyle='--', color='gray')
     plt.axhline(y=-1.96 / np.sqrt(len(ts)), linestyle='--', color='gray')
     plt.axhline(y=1.96 / np.sqrt(len(ts)), linestyle='--', color='gray')
-    plt.title('Autocorrelation Function')
+    plt.xlabel('lag')
+    plt.ylabel('autocorrelation')
+    # plt.title('Autocorrelation Function')
 
     # Plot PACF:
-    plt.subplot(122)
-    plt.plot(lag_pacf)
-    plt.xticks(range(0, 20, 1))
-    plt.axhline(y=0, linestyle='--', color='gray')
-    plt.axhline(y=-1.96 / np.sqrt(len(ts)), linestyle='--', color='gray')
-    plt.axhline(y=1.96 / np.sqrt(len(ts)), linestyle='--', color='gray')
-    plt.title('Partial Autocorrelation Function')
+    # plt.subplot(122)
+    # plt.plot(lag_pacf)
+    # plt.xticks(range(0, 20, 1))
+    # plt.axhline(y=0, linestyle='--', color='gray')
+    # plt.axhline(y=-1.96 / np.sqrt(len(ts)), linestyle='--', color='gray')
+    # plt.axhline(y=1.96 / np.sqrt(len(ts)), linestyle='--', color='gray')
+    # plt.title('Partial Autocorrelation Function')
     plt.tight_layout()
-
+    plt.savefig('../report/images/autocorrelation_identification.png')
     plt.show()
 
 def test_stationarity(ts, mywindow, filename=None):

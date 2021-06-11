@@ -23,18 +23,20 @@ if __name__ == '__main__':
     moving_avg = ts_log.rolling(window=mywindow).mean()
     plt.plot(ts_log)
     plt.plot(moving_avg, color='red')
-    # plt.show()
     ts_log_moving_avg_diff = ts_log - moving_avg
     ts_log_moving_avg_diff.dropna(inplace=True)
     test_stationarity(ts_log_moving_avg_diff, mywindow=mywindow, filename='ts_log_moving_avg_diff')
 
+
     # Determine p and q values
-    partial = False
-    lags = 200
-    lag_acf = acf(ts_log_moving_avg_diff, nlags=lags, fft=False)
-    lag_pacf = pacf(ts_log_moving_avg_diff, nlags=lags, method='ols')
+    partial = True
+    lags = 20
+    lag_acf = acf(ts_log_moving_avg_diff, nlags=200, fft=False)
+    lag_pacf = pacf(ts_log_moving_avg_diff, nlags=200, method='ols')
     plot_AFC_PAFC(ts_log_moving_avg_diff, lag_acf, lag_pacf)
     # Do it with the builtin function (looks nicer)
+    plt.clf()
+    plt.cla()
     fig = plt.figure(figsize=(12, 4))
     ax2 = fig.add_subplot(111)
     plt.xticks(range(0, lags+1, 1))

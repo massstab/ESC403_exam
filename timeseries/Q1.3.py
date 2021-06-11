@@ -21,32 +21,33 @@ ts.drop(columns=['Lower confidence limit (2.5%)', 'Upper confidence limit (97.5%
 one = False
 two = False
 three = True
+three_experimental = False
 
 if one:
     # Visualize and test stationarity
     test_stationarity(ts, mywindow=12, filename='ts_moving_avg_B')
 
 
-    # Differentiating and visualize again
+    # differencing and visualize again
     ts_diff = ts - ts.shift()
     ts_diff.dropna(inplace=True)
     test_stationarity(ts_diff, mywindow=12, filename='ts_moving_avg_diff_B')
 
     # Determine p and q values
-    partial = False
+    partial = True
     lags = 24
     fig = plt.figure(figsize=(12, 4))
     ax2 = fig.add_subplot(111)
     plt.xticks(range(0, lags+1, 2))
     if partial:
-        fig = sm.graphics.tsa.plot_pacf(ts_diff, lags=lags, ax=ax2, title='')
+        fig = sm.graphics.tsa.plot_pacf(ts_diff, lags=lags, ax=ax2, title='', zero=False)
         plt.ylabel('PACF')
     else:
-        fig = sm.graphics.tsa.plot_acf(ts_diff, lags=lags, ax=ax2, title='')
+        fig = sm.graphics.tsa.plot_acf(ts_diff, lags=lags, ax=ax2, title='', zero=False)
         plt.ylabel('ACF')
     plt.xlabel('lag')
 
-    # plt.tight_layout()
+    plt.tight_layout()
     if partial:
         plt.savefig('../report/images/partialautocorrelation_B.png')
     else:
@@ -57,9 +58,9 @@ if two:
     model = ARIMA(ts, order=(12, 0, 2))
     results_ARIMA = model.fit(disp=-1)
     plt.clf()
-    plt.plot(ts_diff)
+    plt.plot(ts)
     plt.plot(results_ARIMA.fittedvalues, color='red')
-    plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts_diff['anomaly'])**2))
+    plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts['anomaly'])**2))
     print(results_ARIMA.summary())
 
 
@@ -83,7 +84,6 @@ if two:
     # plt.show()
 
     predictions_ARIMA = pd.Series(results_ARIMA.fittedvalues, copy=True)
-    print(predictions_ARIMA.head())
 
     plt.clf()
     plt.cla()
@@ -96,6 +96,21 @@ if two:
     # plt.show()
 
 if three:
+    # ARIMA model
+    ts_diff = ts - ts.shift()
+    ts_diff.dropna(inplace=True)
+    plt.clf()
+    plt.cla()
+    model = ARIMA(ts_diff, order=(12, 0, 2))
+    results_ARIMA = model.fit()
+    plt.clf()
+    plt.cla()
+    fig, ax = plt.subplots(figsize=(10, 5))
+    plt.tight_layout()
+    results_ARIMA.plot_predict(dynamic=False, start='2021-03', end='2050-01', ax=ax)
+    plt.savefig(f'tmp/forecast_2021-2050.png')
+
+if three_experimental:
     # ARIMA model
     ts_diff = ts - ts.shift()
     ts_diff.dropna(inplace=True)

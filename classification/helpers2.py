@@ -6,12 +6,18 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Silence tensorflow a bit
 import tensorflow.keras as keras
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+from sklearn.metrics import precision_recall_curve, average_precision_score
+
 
 
 cmap = plt.cm.get_cmap('Paired')
 col_true = cmap(1)
 col_false = cmap(5)
 
+sns.set_style("whitegrid")
+plt.rc('xtick', labelsize=15)
+plt.rc('ytick', labelsize=15)
 
 def plot_image(i, predictions_array, true_label, img, class_names):
     """ Plot an image and sets the x-label
@@ -63,20 +69,48 @@ def plot_value_array(i, predictions_array, true_label):
     thisplot[predicted_label].set_color(col_false)
     thisplot[true_label].set_color(col_true)
 
-model = keras.Sequential([
-    keras.layers.Conv2D(filters=10, kernel_size=(4, 4), padding='Same', activation='relu', input_shape=(64, 64, 3)),
-    keras.layers.Conv2D(filters=10, kernel_size=(4, 4), padding='Same', activation='relu', input_shape=(64, 64, 3)),
-    keras.layers.MaxPool2D(pool_size=(2, 2)),
-    keras.layers.Flatten(),
-    keras.layers.Dense(256, activation="relu"),
-    keras.layers.Dropout(0.5),
-    keras.layers.Dense(6, activation="softmax")
-])
 
 def create_model():
     """
     Function to create a convolutional model and compiles it.
     :return: Returns the keras model.
     """
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    model = keras.Sequential([
+        keras.layers.Conv2D(filters=10, kernel_size=(5, 5), padding='Same', activation='relu', input_shape=(64, 64, 3)),
+        keras.layers.Conv2D(filters=10, kernel_size=(5, 5), padding='Same', activation='relu', input_shape=(64, 64, 3)),
+        keras.layers.MaxPool2D(pool_size=(2, 2)),
+        keras.layers.Flatten(),
+        keras.layers.Dense(256, activation="relu"),
+        keras.layers.Dropout(0.5),
+        keras.layers.Dense(6, activation="softmax")
+    ])
+    optimizer = keras.optimizers.Adam(learning_rate=0.001)
+    model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model
+
+def save_history(history):
+    # summarize history for accuracy
+    # fig, ax = plt.subplots(1,2, figsize=(14, 6))
+    # residuals.plot(title="Residuals", ax=ax[0], legend=False)
+    # residuals.plot(kind='kde', title='Density', ax=ax[1], legend=False)
+    # plt.tight_layout()
+    # plt.savefig('../report/images/res_dens.png')
+    plt.clf()
+    plt.cla()
+    fig, ax = plt.subplots(1,2, figsize=(12, 5))
+    ax[0].plot(history['accuracy'], marker='o')
+    ax[0].plot(history['val_accuracy'], marker='o')
+    ax[0].set_title('model accuracy')
+    ax[0].set_ylabel('accuracy')
+    ax[0].set_xlabel('epoch')
+    ax[0].legend(['train', 'validation'],)
+
+    # summarize history for loss
+    ax[1].plot(history['loss'], marker='o')
+    ax[1].plot(history['val_loss'], marker='o')
+    ax[1].set_title('model loss')
+    ax[1].set_ylabel('loss')
+    ax[1].set_xlabel('epoch')
+    ax[1].legend(['train', 'validation'])
+    plt.tight_layout()
+    plt.savefig('../report/images/history.png')
