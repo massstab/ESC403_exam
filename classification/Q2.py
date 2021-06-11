@@ -90,7 +90,7 @@ if run_cnn:
             pickle.dump(history.history, file_pi)
         model_conv.save(f'saved_model/conv_ep{EPOCHS}_batch{BATCH_SIZE}')
     else:
-        model_conv = keras.models.load_model('saved_model/conv')
+        model_conv = keras.models.load_model('saved_model/conv_ep10_batch64')
         history = pickle.load(open('saved_model/trainHistoryDict_CNN', 'rb'))
 
     loss_conv, accuracy_conv = model_conv.evaluate(X_test, y_test)
