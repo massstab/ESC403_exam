@@ -63,20 +63,20 @@ def plot_value_array(i, predictions_array, true_label):
     thisplot[predicted_label].set_color(col_false)
     thisplot[true_label].set_color(col_true)
 
+model = keras.Sequential([
+    keras.layers.Conv2D(filters=10, kernel_size=(4, 4), padding='Same', activation='relu', input_shape=(64, 64, 3)),
+    keras.layers.Conv2D(filters=10, kernel_size=(4, 4), padding='Same', activation='relu', input_shape=(64, 64, 3)),
+    keras.layers.MaxPool2D(pool_size=(2, 2)),
+    keras.layers.Flatten(),
+    keras.layers.Dense(256, activation="relu"),
+    keras.layers.Dropout(0.5),
+    keras.layers.Dense(6, activation="softmax")
+])
 
 def create_model():
     """
     Function to create a convolutional model and compiles it.
     :return: Returns the keras model.
     """
-    model = keras.Sequential([
-        keras.layers.Conv2D(filters=10, kernel_size=(5, 5), padding='Same', activation='relu', input_shape=(64, 64, 3)),
-        keras.layers.Conv2D(filters=10, kernel_size=(5, 5), padding='Same', activation='relu', input_shape=(64, 64, 3)),
-        keras.layers.MaxPool2D(pool_size=(2, 2)),
-        keras.layers.Flatten(),
-        keras.layers.Dense(256, activation="relu"),
-        keras.layers.Dropout(0.5),
-        keras.layers.Dense(6, activation="softmax")
-    ])
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model

@@ -156,14 +156,17 @@
 
 	\subsection{Classification performance}
 	\begin{itemize}
-		\item Accuracy CNN: xx.xx\%, Accuracy RF: xx.xx\%	
-		\item The classification error rate is the proportion of instances misclassified divided by the whole set of instances:
-		\begin{equation}
-			cer = \frac{FP + FN}{TP + TN + FP + FN}
-		\end{equation}
-		In our case the error rate was: CNN: x, RF: x
-		\item Does any model perform better?
-		\item The prediction for the unlabled dataset is the following:
+		\item Accuracy CNN: 99.00\%, that means the error rate was 1\%. It misclassified 10/1000 images from my test set.
+		\item Accuracy RF: 90.5\%, that means the error rate was 0.5\%. It misclassified 5/1000 images from my test set.
+		\item Both models performed surprisingly good. I checked many times if i excluded any test data from the training. No model performed significantly better.
+		\item Both models agreed in all images only the CNN misclassified image 001212.jpg where it predicted the class 'headCT' instead of 'Hand'. As far as i can tell the RF made no prediction error on the unlabeled dataset.
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.8\textwidth]{images/pred_img_cnn.png}
+			\caption{The prediction from the convolutional neural network. It misclassified one image. Can you find it?}
+			\label{fig:pred_img}
+		\end{figure}
+		I included the corresponding files in the folder \texttt{report/data} in the repository (\texttt{predictions\_cnn.csv}, \texttt{predictions\_rf.csv}).
 	\end{itemize}
 	
 	\subsection{Hyper parameter tuning}
