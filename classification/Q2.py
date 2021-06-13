@@ -4,20 +4,19 @@ import pickle
 import numpy as np
 import sys
 import sklearn.metrics
-
-logging.disable(logging.WARNING)
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Silence tensorflow a bit
-np.set_printoptions(threshold=sys.maxsize)
-
 from contextlib import redirect_stdout
 import matplotlib.pyplot as plt
-import tensorflow.keras as keras
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from preparation import X, y, X_pred, img_name
 from helpers2 import create_model, save_history
+logging.disable(logging.WARNING)
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Silence tensorflow a bit
+import tensorflow.keras as keras
+
+np.set_printoptions(threshold=sys.maxsize)
 
 # TODO: ChestCT and AbdomentCT maybe are not normalized correctly?
 
@@ -37,10 +36,6 @@ class_names = list(classes.keys())
 # Creating train, test and validation sets after shuffling the set
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=True)
 X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42, shuffle=False)
-
-# print(X_test.shape, y_test.shape)
-# print(X_train.shape, y_train.shape)
-# print(X_val.shape, y_val.shape)
 
 
 # Take a look at some images
@@ -103,10 +98,10 @@ if run_cnn:
     if save_to_file:
         keras.utils.plot_model(model_conv, "../report/images/model_cnn.png", show_shapes=True, dpi=150)
 
-    # Saves the train/val acccuracy/loss for question 2.4
+    # Saves the train/val accuracy/loss for question 2.4
     save_history(history)
 
-    # Predict the unlabled data
+    # Predict the unlabeled data
     predictions = model_conv.predict(X_pred)
     predictions = np.argmax(predictions, axis=1)
     df = pd.DataFrame(list(zip(img_name, [class_names[pred] for pred in predictions], predictions)),
@@ -124,4 +119,3 @@ if run_cnn:
     plt.tight_layout()
     if save_to_file:
         plt.savefig('../report/images/pred_img_cnn.png')
-    # plt.show()

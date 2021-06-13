@@ -101,7 +101,7 @@
 			\caption{Plot of the partial autocorrelation function. The x-axis are the lags. One can see that the first time the PACF crosses the confidence interval (blue) is at lag 3.}
 			\label{fig:pacf}
 		\end{figure}
-		\item To find which ARIMA model would be appropriate we look at the autocorrelation function in. We clearly can see that the function decays to zero while alternating between + and -. This seems to be an AR model (for which we already identified the p-value as 3). Maybe one could also try a mixed AR and MA model. For this i also identified the q value. The function crosses the confidence interval at lag 7 $\implies q=7$. 
+		\item To find which ARIMA model would be appropriate we look at the autocorrelation function in figure \ref{fig:acf}. We clearly can see that the function decays to zero while alternating between + and -. This seems to be an AR model (for which we already identified the p-value as 3). Maybe one could also try a mixed AR and MA model. For this i also identified the q value. The function crosses the confidence interval at lag 7 $\implies q=7$. 
 		\begin{figure}
 			\centering
 			\includegraphics[width=1\textwidth]{images/autocorrelation_identification.png}

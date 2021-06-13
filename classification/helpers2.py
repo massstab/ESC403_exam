@@ -1,15 +1,13 @@
 import logging
 import os
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Silence tensorflow a bit
 
 import tensorflow.keras as keras
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
-from sklearn.metrics import precision_recall_curve, average_precision_score
-
-
 
 cmap = plt.cm.get_cmap('Paired')
 col_true = cmap(1)
@@ -18,6 +16,7 @@ col_false = cmap(5)
 sns.set_style("whitegrid")
 plt.rc('xtick', labelsize=15)
 plt.rc('ytick', labelsize=15)
+
 
 def plot_image(i, predictions_array, true_label, img, class_names):
     """ Plot an image and sets the x-label
@@ -39,7 +38,7 @@ def plot_image(i, predictions_array, true_label, img, class_names):
     plt.imshow(img, cmap=plt.cm.binary)
 
     predicted_label = np.argmax(predictions_array)
-    if (predicted_label == true_label):
+    if predicted_label == true_label:
         color = col_true
     else:
         color = col_false
@@ -88,7 +87,13 @@ def create_model():
     model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model
 
+
 def save_history(history):
+    """
+    This function is a mess.
+    :param history: The history dict from CNN training
+    :return: None
+    """
     # summarize history for accuracy
     # fig, ax = plt.subplots(1,2, figsize=(14, 6))
     # residuals.plot(title="Residuals", ax=ax[0], legend=False)
@@ -97,13 +102,13 @@ def save_history(history):
     # plt.savefig('../report/images/res_dens.png')
     plt.clf()
     plt.cla()
-    fig, ax = plt.subplots(1,2, figsize=(12, 5))
+    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
     ax[0].plot(history['accuracy'], marker='o')
     ax[0].plot(history['val_accuracy'], marker='o')
     ax[0].set_title('model accuracy')
     ax[0].set_ylabel('accuracy')
     ax[0].set_xlabel('epoch')
-    ax[0].legend(['train', 'validation'],)
+    ax[0].legend(['train', 'validation'], )
 
     # summarize history for loss
     ax[1].plot(history['loss'], marker='o')

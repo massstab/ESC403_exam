@@ -17,7 +17,6 @@ ts.set_index('Time', inplace=True)
 ts.rename(columns={"Anomaly (deg C)": "anomaly"}, inplace=True)
 ts.drop(columns=['Lower confidence limit (2.5%)', 'Upper confidence limit (97.5%)'], inplace=True)
 
-
 one = False
 two = False
 three = True
@@ -27,7 +26,6 @@ if one:
     # Visualize and test stationarity
     test_stationarity(ts, mywindow=12, filename='ts_moving_avg_B')
 
-
     # differencing and visualize again
     ts_diff = ts - ts.shift()
     ts_diff.dropna(inplace=True)
@@ -36,9 +34,11 @@ if one:
     # Determine p and q values
     partial = True
     lags = 24
+    plt.clf()
+    plt.cla()
     fig = plt.figure(figsize=(12, 4))
     ax2 = fig.add_subplot(111)
-    plt.xticks(range(0, lags+1, 2))
+    plt.xticks(range(0, lags + 1, 2))
     if partial:
         fig = sm.graphics.tsa.plot_pacf(ts_diff, lags=lags, ax=ax2, title='', zero=False)
         plt.ylabel('PACF')
@@ -58,21 +58,21 @@ if two:
     model = ARIMA(ts, order=(12, 0, 2))
     results_ARIMA = model.fit(disp=-1)
     plt.clf()
+    plt.cla()
     plt.plot(ts)
     plt.plot(results_ARIMA.fittedvalues, color='red')
-    plt.title('RSS: %.4f'% sum((results_ARIMA.fittedvalues-ts['anomaly'])**2))
+    plt.title('RSS: %.4f' % sum((results_ARIMA.fittedvalues - ts['anomaly']) ** 2))
     print(results_ARIMA.summary())
-
 
     # Plot residual errors
     plt.clf()
+    plt.cla()
     residuals = pd.DataFrame(results_ARIMA.resid)
     # fig, ax = plt.subplots(1,2, figsize=(14, 6))
     # residuals.plot(title="Residuals", ax=ax[0], legend=False)
     # residuals.plot(kind='kde', title='Density', ax=ax[1], legend=False)
     # plt.tight_layout()
     # plt.savefig('../report/images/res_dens.png')
-
 
     # Prediction for the average temperature anomaly from 2010-01 - 2021-03
     plt.clf()
@@ -90,7 +90,7 @@ if two:
     fig, ax = plt.subplots(figsize=(12, 5))
     plt.plot(ts, c='r')
     plt.plot(predictions_ARIMA)
-    print('RMSE: %.4f'% np.sqrt(sum((predictions_ARIMA-ts['anomaly'])**2)/len(ts)))
+    print('RMSE: %.4f' % np.sqrt(sum((predictions_ARIMA - ts['anomaly']) ** 2) / len(ts)))
     plt.tight_layout()
     plt.savefig('../report/images/forecast_2010-2021_RMSE.png')
     # plt.show()

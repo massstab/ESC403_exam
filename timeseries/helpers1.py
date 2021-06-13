@@ -37,6 +37,7 @@ def plot_AFC_PAFC(ts, lag_acf, lag_pacf):
     plt.savefig('../report/images/autocorrelation_identification.png')
     plt.show()
 
+
 def test_stationarity(ts, mywindow, filename=None):
     # Plot rolling statistics:
     rolmean = ts.rolling(window=mywindow).mean()
@@ -63,4 +64,3 @@ def test_stationarity(ts, mywindow, filename=None):
         plt.savefig(f'../report/images/{filename}.png')
     df_results.to_csv(f'../report/data/dickey-fuller_{filename}.csv')
     # plt.show(block=False)
-
